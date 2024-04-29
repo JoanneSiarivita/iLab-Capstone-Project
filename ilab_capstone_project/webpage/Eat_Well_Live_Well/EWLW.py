@@ -115,9 +115,9 @@ def display_third_page():
 
     def calculate_risk_factor(serves_per_day):
         risk_factor=0
-        for food, serves_per_day.items():
-        if food in ["Refined grains","Processed meat","Sweetened beverages","Added sugars","Added salts"]:
-            risk_factor += serves
+        for food, serves in serves_per_day.items():
+            if food in ["Refined grains","Processed meat","Sweetened beverages","Added sugars","Added salts"]:
+                risk_factor += serves_per_day[food]
         return risk_factor    
             
     
