@@ -1,41 +1,40 @@
 import streamlit as st
 
-def user_information_page():
-    # CSS for page background and text input area
-    custom_css = """
-    <style>
-    body {
-        background-image: url('images/background.jpg'); /* Change 'images/background.jpg' to your image path */
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }
-    .stTextInput>div>div>div>input {
-        background-color: white !important;
-    }
-    </style>
-    """
-    st.markdown(custom_css, unsafe_allow_html=True)
-
-    st.title('Eat Well Live Well')
-    st.write('Please enter your first name and then click on your gender to begin:')
-    
-    # Input fields for user information
-    name = st.text_input('Your Name')
+# Function to display first page
+def display_first_page():
+    st.title("Eat Well Live Well")
+    name = st.text_input("Please enter your name and then click on your gender to begin")
     gender = st.radio('Gender Preference', ['Male', 'Female', 'Other'])
-    
-    height = st.number_input('Height (cm)', min_value=0.0, max_value=300.0, value=170.0)
-    weight = st.number_input('Weight (kg)', min_value=0.0, max_value=500.0, value=70.0)
-    family_diabetes_history = st.radio('Family history of type 2 diabetes', ['Yes', 'No', 'Not sure'])
-    physical_activity = st.radio('Physical activity level', ['Active', 'Inactive'])
-    smoking = st.radio('Smoker', ['Yes', 'No'])
-    alcohol = st.radio('Alcohol consumption', ['Yes', 'No'])
+    submit = st.button("Submit")
 
-    # Next button to navigate to the next page
-    if st.button('Next'):
-        # Save user information to session state or database
-        # Navigate to the next page (diet page)
-        st.write('Navigating to the next page...')
+    if submit:
+        st.session_state["name"] = name
+        st.write(f"Hi {name}!")
+        st.write("The early signs and symptoms of Type 2 Diabetes can include:")
+    
+        # List of signs
+        signs = [
+            "Frequent urination",
+            "Increased thirst",
+            "Fatigue",
+            "Blurred vision",
+            "Slow healing of cuts and wounds",
+            "Tingling numbness or pain in hands or feet",
+            "Patches of darker skin",
+            "Itching and yeast infections"
+        ]
+    
+        # Display signs as bullet points
+        st.markdown("\n".join([f"- {sign}" for sign in signs]))
+
+        st.write("If you have recently started experiencing these symptoms, it is recommended that you seek medical advice as soon as possible.")
+        
+        # Add button to proceed to next page
+        page = st.button("NEXT >>")
+
+        # Simulate a click on a next page button
+        st.session_state["page"] = True
+
 
 def main():
     user_information_page()

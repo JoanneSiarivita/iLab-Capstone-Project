@@ -30,10 +30,10 @@ def display_first_page():
         st.write("If you have recently started experiencing these symptoms, it is recommended that you seek medical advice as soon as possible.")
         
         # Add button to proceed to next page
-        next_page = st.button("NEXT >>")
+        page = st.button("NEXT >>")
 
         # Simulate a click on a next page button
-        st.session_state["next_page"] = True
+        st.session_state["page"] = True
 
 # Function to display second page
 def display_second_page():
@@ -74,11 +74,11 @@ def display_second_page():
             except ValueError:
                 st.write("Please enter valid numeric values for height and weight")
             
-            # Add button to proceed to next page
-       # next_page = st.button("NEXT >>")
+        # Add button to proceed to next page
+        page = st.button("NEXT >>")
 
         # Simulate a click on a next page button
-        #st.session_state["next_page"] = True
+        st.session_state["page"] = True
 
 # Function to display third page
 def display_third_page():
@@ -122,10 +122,10 @@ def display_third_page():
             
     
     # Add button to proceed to next page
-    next_page = st.button("NEXT >>")
+    page = st.button("NEXT >>")
 
     # Simulate a click on a next page button
-    st.session_state["next_page"] = True
+    st.session_state["page"] = True
 
 #Function to display results
 def display_results_page():
@@ -142,8 +142,8 @@ def main():
         page_icon=":green_salad:"
     )
 
-    if "name" not in st.session_state:
-        st.session_state["name"] = ""
+    #if "name" not in st.session_state:
+    #    st.session_state["name"] = ""
 
     if "page" not in st.session_state:
         st.session_state["page"] = "first"
