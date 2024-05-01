@@ -1,4 +1,6 @@
 import streamlit as st
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier  # Import your model here
 
 # Function to display content based on page state
 def display_page(page_num):
@@ -65,13 +67,17 @@ def display_page(page_num):
         if st.button("Submit", key="submit_button"):
             # Calculate risk factor based on servings per day
             result = calculate_risk_factor(serves_per_day)
-            st.session_state["results"] = result
+            
+            # Use a trained model to predict diabetes risk
+            risk_prediction = predict_diabetes_risk(result)
+            
+            st.session_state["results"] = risk_prediction
             st.success("Selections submitted successfully")
             st.session_state["page"] = 4  # Move to results page
 
     elif page_num == 4:
         st.title("Eat Well Live Well")
-        st.write("Your risk factor based on selected food choices:")
+        st.write("Your predicted risk of developing Type 2 Diabetes:")
         st.write(st.session_state["results"])
         st.button("Restart", key="restart_button")
         if st.session_state["restart_button"]:
@@ -82,12 +88,25 @@ def calculate_risk_factor(serves_per_day):
     for food, serves in serves_per_day.items():
         if serves:
             try:
-                serves=float(serves)
+                serves = float(serves.split()[0])  # Extract numeric part from slider label
                 if food in ["Refined grains", "Processed meats", "Sweetened beverages", "Added sugars", "Added salts"]:
                     risk_factor += serves
             except ValueError:
                 st.warning(f"Invalid input for serves of {food}. Please enter a valid number.")
     return risk_factor
+
+def predict_diabetes_risk(risk_factor):
+    # Load your trained model (replace with your actual model loading code)
+    model = RandomForestClassifier()  # Example - replace with your model loading code
+    model.load('path_to_your_model')  # Load your trained model
+    
+    # Create a DataFrame for prediction
+    data = pd.DataFrame({'Risk Factor': [risk_factor]})
+    
+    # Make prediction
+    prediction = model.predict_proba(data)[:, 1][0]  # Assuming predicting probability of class 1
+    
+    return prediction
 
 # Set Streamlit page config
 st.set_page_config( 
@@ -101,6 +120,3 @@ if "page" not in st.session_state:
 
 # Display content based on the current page
 display_page(st.session_state["page"])
-
-# Rerun app to display the correct page based on the session state
-#st.experimental_rerun()
