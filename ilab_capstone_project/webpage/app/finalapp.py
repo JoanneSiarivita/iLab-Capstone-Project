@@ -1,17 +1,45 @@
 import streamlit as st
 import pandas as pd
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.svm import SVR
+
+# Function to predict diabetes risk based on risk factor
+def predict_diabetes_risk(risk_factor):
+    # Assuming `svm_model` is defined and trained properly
+    svm_model = SVR(kernel='rbf')
+    #Load dataset into a dataframe
+    X_train = pd.read_csv('../data/processed/X_train.csv')
+    X_test = pd.read_csv('../data/processed/X_test.csv')
+    y_train = pd.read_csv('../data/processed/y_train.csv')
+    y_test = pd.read_csv('../data/processed/y_test.csv')
+
+    # Define features and target variable
+    features = X_train[['num__Fruits', 'num__Non-starchy vegetables',
+       'num__Other starchy vegetables', 'num__Refined grains',
+       'num__Whole grains', 'num__Total processed meats',
+       'num__Unprocessed red meats', 'num__Eggs',
+       'num__Sugar-sweetened beverages', 'num__Fruit juices',
+       'num__Saturated fat', 'num__Monounsaturated fatty acids',
+       'num__Added sugars', 'num__Dietary sodium', 'num__Selenium',
+       'num__Total Milk', 'num__ObesityRate']] 
+
+    target = y_train['Diabetes prevalence (% of population ages 20 to 79)']
+    # svm_model.fit(X_train, y_train)
+    
+    # Create a DataFrame for prediction
+    data = pd.DataFrame({'Risk Factor': [risk_factor]})
+    
+    # Make prediction
+    prediction = svm_model.predict(data)[0]  # Assuming predicting risk directly
+    
+    return prediction
 
 # Function to display content based on page state
 def display_page(page_num):
     if page_num == 1:
         st.title("Eat Well Live Well - Welcome")
-        name = st.text_input("Please enter your name and select gender to begin")
+        name = st.text_input("Please enter your name:")
         gender = st.radio('Gender Preference', ['Male', 'Female', 'Other'])
-        submit_page1 = st.button("Submit", key="first_page")
+        submit_page1 = st.button("Submit")
 
         if submit_page1:
             st.session_state["name"] = name
@@ -23,14 +51,9 @@ def display_page(page_num):
         st.write("The early signs and symptoms of Type 2 Diabetes can include:")
 
         signs = [
-            "Frequent urination",
-            "Increased thirst",
-            "Fatigue",
-            "Blurred vision",
-            "Slow healing of cuts and wounds",
-            "Tingling numbness or pain in hands or feet",
-            "Patches of darker skin",
-            "Itching and yeast infections"
+            "Frequent urination", "Increased thirst", "Fatigue", "Blurred vision",
+            "Slow healing of cuts and wounds", "Tingling numbness or pain in hands or feet",
+            "Patches of darker skin", "Itching and yeast infections"
         ]
 
         st.markdown("\n".join([f"- {sign}" for sign in signs]))
@@ -67,7 +90,7 @@ def display_page(page_num):
             serves_per_day[option] = serves
 
         # Add a button to submit selection
-        if st.button("Submit", key="submit_button"):
+        if st.button("Submit"):
             # Calculate risk factor based on servings per day
             result = calculate_risk_factor(serves_per_day)
             
@@ -82,8 +105,8 @@ def display_page(page_num):
         st.title("Eat Well Live Well")
         st.write("Your predicted risk of developing Type 2 Diabetes:")
         st.write(st.session_state["results"])
-        st.button("Restart", key="restart_button")
-        if st.session_state["restart_button"]:
+        st.button("Restart")
+        if st.button("Restart"):
             st.session_state["page"] = 1  # Restart to page 1
 
 def calculate_risk_factor(serves_per_day):
@@ -97,19 +120,6 @@ def calculate_risk_factor(serves_per_day):
             except ValueError:
                 st.warning(f"Invalid input for serves of {food}. Please enter a valid number.")
     return risk_factor
-
-def predict_diabetes_risk(risk_factor):
-    # Load your trained model (replace with your actual model loading code)
-    model = RandomForestClassifier()  # Example - replace with your model loading code
-    model.load('path_to_your_model')  # Load your trained model
-    
-    # Create a DataFrame for prediction
-    data = pd.DataFrame({'Risk Factor': [risk_factor]})
-    
-    # Make prediction
-    prediction = model.predict_proba(data)[:, 1][0]  # Assuming predicting probability of class 1
-    
-    return prediction
 
 # Set Streamlit page config
 st.set_page_config( 
