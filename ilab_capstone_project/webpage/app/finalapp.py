@@ -106,7 +106,7 @@ def display_page_3():
     }
 
     # Calculate total servings per day across all food types
-    total_serves_per_day = 0
+    #total_serves_per_day = 0
 
     # Create a list to store data for each food type
     food_data_list = []
@@ -116,18 +116,18 @@ def display_page_3():
         st.image(info["image"], caption=f"Serving Size {food_type}")
         serves = st.select_slider(f"How many serves of {food_type} per day?", options=["0","1","2","3","4","5 or more"], help="help")
         num_serves = float(serves[:1])
-        total_serving_per_day = num_serves * info["serving_size"]
+        total_serves_per_day = num_serves * info["serving_size"]
 
         # Append data tuple to the list
-        food_data_list.append((food_type, info["serving_size"], total_serving_per_day))
+        food_data_list.append((food_type, info["serving_size"], total_serves_per_day))
 
     # Create a DataFrame from the collected data
-    food_data = pd.DataFrame(food_data_list, columns=['Food Type', 'Serving Size (g)', 'Servings per Day'])
+    food_data = pd.DataFrame(food_data_list, columns=['Food Type', 'Serving Size (g)', 'Serves per Day'])
 
     # Add a button to calculate and submit selection
     if st.button("Calculate"):
         # Calculate total servings per day across all food types
-        total_serves_per_day = food_data['Servings per Day'].sum()
+        total_serves_per_day = food_data['Serves per Day'].sum()
 
         # Calculate risk factor based on total servings per day
         result = calculate_risk_factor(total_serves_per_day)
@@ -135,7 +135,7 @@ def display_page_3():
         # Use a trained model to predict diabetes risk
         risk_prediction = predict_diabetes_risk(result)
         
-        st.session_state["results"] = risk_prediction
+        st.session_state["result"] = risk_prediction
         st.success("Selections submitted successfully")
         st.session_state["page"] = 4  # Move to results page
 
