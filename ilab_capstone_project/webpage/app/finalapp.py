@@ -57,7 +57,7 @@ def calculate_risk_factor(serves_per_day):
                 st.warning(f"Invalid input for serves of {food}. Please enter a valid number.")
     return risk_factor
 
-# DEFINE SPECIFIC PAGE DISPLAY FUNCTIONS
+# DEFINE PAGE 1 DISPLAY
 def display_page_1():
     st.image('Header.png')
     st.markdown('<p class="big-font">This application will be used to assess if you have any dietary risk factors for diabetes. You will answer a series of questions regarding the types and amount of food you eat to provide a dietary risk assessment for type 2 diabetes.</p>', unsafe_allow_html=True)
@@ -72,6 +72,7 @@ def display_page_1():
     if submit_page1:
         st.session_state["page"] = 2  # Move to page 2 after submission
 
+# DEFINE PAGE 2 DISPLAY
 def display_page_2():
     st.image('Header.png')
     st.write(f"Hi {st.session_state['name']}!")
@@ -83,91 +84,62 @@ def display_page_2():
     if st.button("NEXT"):
         st.session_state["page"] = 3
 
+# DEFINE PAGE 3 DISPLAY
 def display_page_3():
     st.image('Header.png')
     name = st.session_state["name"]
     st.write(f"{name}, what do you eat each day?")
     st.link_button("For more information on serving sizes please click here", "https://www.eatforhealth.gov.au/food-essentials/five-food-groups/grain-cereal-foods-mostly-wholegrain-and-or-high-cereal-fibre")
-    food_options = ["Eggs", "Fruit", "Non-starchy vegetable", "Starchy vegetable", "Refined grains", "Whole grains", "Processed meats", "Unprocessed meats", "Sweetened beverages", "Fruit juice", "Saturated fats",
-                    "Unsaturated fats", "Added sugars", "Added salts", "Dairy"]
-    # Display food options and sliders
-    serves_per_day_fruit = {}
-    st.image("fruitserve.png", caption="Serving Size Fruit")
-    serves = st.select_slider(f"How many serves of fruit per day?", options=["0-1", "2-3", "4 or more"],
-                                  help="hep")
-    serves_per_day_fruit = float(serves[:1])*150
-    serves_per_day_fruit
 
-    st.image("starchyvegserve.png", caption="Serving Size Starchy Vegetables")
-    serves = st.select_slider(f"How many serves of starchy vegetables per day?",
-                                  options=["0-1", "2-3", "4 or more"],
-                                  help="hep")
-    serves_per_day_starchyveg = float(serves[:1])*180
-    serves_per_day_starchyveg
+    # Define food options and their corresponding serving sizes
+    food_options = {
+        "Fruit": {"image": "fruitserve.png", "serving_size": 150},
+        "Starchy Vegetables": {"image": "starchyvegserve.png", "serving_size": 180},
+        "Dairy": {"image": "dairyserve.png", "serving_size": 250},
+        "Refined Grains": {"image": "refgrainserve.png", "serving_size": 50},
+        "Whole Grains": {"image": "whgrainserve.png", "serving_size": 50},
+        "Processed Meats": {"image": "prmeatserve.png", "serving_size": 50},
+        "Eggs": {"image": "eggserve.png", "serving_size": 55},
+        "Unprocessed Meat": {"image": "unprmeatserve.png", "serving_size": 100},
+        "Sweetened Beverage": {"image": "swdrinkserve.png", "serving_size": 248},
+        "Fruit Juice": {"image": "fjuiceserve.png", "serving_size": 248}
+    }
 
-    st.image("dairyserve.png", caption="Serving Size Dairy")
-    serves = st.select_slider(f"How many serves of dairy per day?", options=["0-1", "2-3", "4 or more"],
-                                  help="hep")
-    serves_per_day_dairy = float(serves[:1])*250
-    serves_per_day_dairy
+    # Calculate total servings per day across all food types
+    total_serves_per_day = 0
 
-    st.image("refgrainserve.png", caption="Serving Size Refined Grains")
-    serves = st.select_slider(f"How many serves of refined grains per day?", options=["0-1", "2-3","4-5", "6 or more"],
-                                  help="hep")
-    serves_per_day_refgrain = float(serves[:1])*50
-    serves_per_day_refgrain
+    # Create a list to store data for each food type
+    food_data_list = []
 
-    st.image("whgrainserve.png", caption="Serving Size Whole Grains")
-    serves = st.select_slider(f"How many serves of whole grains per day?", options=["0-1", "2-3", "4 or more"],
-                                  help="hep")
-    serves_per_day_whgrain = float(serves[:1])*50
-    serves_per_day_whgrain
+    # Iterate through food options to collect user input
+    for food_type, info in food_options.items():
+        st.image(info["image"], caption=f"Serving Size {food_type}")
+        serves = st.select_slider(f"How many serves of {food_type} per day?", options=["0","1","2","3","4","5 or more"], help="help")
+        num_serves = float(serves[:1])
+        total_serving_per_day = num_serves * info["serving_size"]
 
-    st.image("prmeatserve.png", caption="Serving Size Processed Meats")
-    serves = st.select_slider(f"How many serves of processed meat per day?", options=["0-1", "2-3", "4 or more"],
-                                  help="hep")
-    serves_per_day_prmeat = float(serves[:1])*50
-    serves_per_day_prmeat
+        # Append data tuple to the list
+        food_data_list.append((food_type, info["serving_size"], total_serving_per_day))
 
-    st.image("eggserve.png", caption="Serving Size Eggs")
-    serves = st.select_slider(f"How many serves of eggs per day?", options=["0-1", "2-3", "4 or more"],
-                                  help="hep")
-    serves_per_day_egg = float(serves[:1])*55
-    serves_per_day_egg
+    # Create a DataFrame from the collected data
+    food_data = pd.DataFrame(food_data_list, columns=['Food Type', 'Serving Size (g)', 'Servings per Day'])
 
-    st.image("unprmeatserve.png", caption="Serving Size Unprocessed Meat")
-    serves = st.select_slider(f"How many serves of Unprocessed Meat per day?", options=["0-1", "2-3", "4 or more"],
-                                  help="hep")
-    serves_per_day_unprmeat = float(serves[:1])*100
-    serves_per_day_unprmeat
+    # Add a button to calculate and submit selection
+    if st.button("Calculate"):
+        # Calculate total servings per day across all food types
+        total_serves_per_day = food_data['Servings per Day'].sum()
 
-    st.image("swdrinkserve.png", caption="Serving Size Sweetened Beverage")
-    serves = st.select_slider(f"How many serves of Sweetened Beverage per day?",
-                                  options=["0-1", "2-3", "4 or more"],
-                                  help="hep")
-    serves_per_day_swbeverage = float(serves[:1])*248
-    serves_per_day_swbeverage
+        # Calculate risk factor based on total servings per day
+        result = calculate_risk_factor(total_serves_per_day)
+                
+        # Use a trained model to predict diabetes risk
+        risk_prediction = predict_diabetes_risk(result)
+        
+        st.session_state["results"] = risk_prediction
+        st.success("Selections submitted successfully")
+        st.session_state["page"] = 4  # Move to results page
 
-    st.image("fjuiceserve.png", caption="Serving Size Fruit Juice")
-    serves = st.select_slider(f"How many serves of Fruit Juice per day?", options=["0-1", "2-3", "4 or more"],
-                                  help="hep")
-    serves_per_day_fjuice = float(serves[:1])*248
-    serves_per_day_fjuice
-
-
-    # Add a button to submit selection
-    if st.button("Submit"):
-        # Calculate risk factor based on servings per day
-            result = calculate_risk_factor(serves_per_day)
-            
-            # Use a trained model to predict diabetes risk
-            risk_prediction = predict_diabetes_risk(result)
-            
-            st.session_state["results"] = risk_prediction
-            st.success("Selections submitted successfully")
-            st.session_state["page"] = 4  # Move to results page
-
-
+# DEFINE PAGE 4 DISPLAY
 def display_page_4():
     st.image('Header.png')
     st.write("Your predicted risk of developing Type 2 Diabetes:")
