@@ -105,17 +105,14 @@ def display_page_3():
         "Fruit Juice": {"image": "fjuiceserve.png", "serving_size": 248}
     }
 
-    # Calculate total servings per day across all food types
-    #total_serves_per_day = 0
-
     # Create a list to store data for each food type
-    food_data_list = []
+    food_data_list = {}
 
     # Iterate through food options to collect user input
     for food_type, info in food_options.items():
         st.image(info["image"], caption=f"Serving Size {food_type}")
         serves = st.select_slider(f"How many serves of {food_type} per day?", options=["0","1","2","3","4","5 or more"], help="help")
-        num_serves = float(serves[:1])
+        num_serves = float(serves)
         total_serves_per_day = num_serves * info["serving_size"]
 
         # Append data tuple to the list
@@ -125,9 +122,9 @@ def display_page_3():
     food_data = pd.DataFrame(food_data_list, columns=['Food Type', 'Serving Size (g)', 'Serves per Day'])
 
     # Add a button to calculate and submit selection
-    if st.button("Calculate"):
+    if st.button("Submit"):
         # Calculate total servings per day across all food types
-        total_serves_per_day = food_data['Serves per Day'].sum()
+        #total_serves_per_day = food_data['Serves per Day'].sum()
 
         # Calculate risk factor based on total servings per day
         result = calculate_risk_factor(total_serves_per_day)
