@@ -168,19 +168,6 @@ def display_page_3():
             st.session_state["page"] = 4  # Move to results page
 
 
-
-    #New code
-    for food in food_options:
-        serves = st.select_slider(f"How many serves of {food} per day?", options=["0-1", "2-3", "4 or more"], help="help")
-        st.image(f"{food.lower().replace(' ', '')}serve.png", caption=f"Serving Size {food}")
-        st.session_state[food.lower().replace(' ', '')] = serves
-    if st.button("Submit"):
-        risk_factor = calculate_risk_factor(st.session_state)
-        risk_prediction = predict_diabetes_risk(risk_factor, svm_model)
-        st.session_state["results"] = risk_prediction
-        st.success("Selections submitted successfully")
-        st.session_state["page"] = 4  # Move to results page
-
 def display_page_4():
     st.image('Header.png')
     st.write("Your predicted risk of developing Type 2 Diabetes:")
