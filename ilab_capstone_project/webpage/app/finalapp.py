@@ -131,10 +131,6 @@ def display_page(page_num):
             "Fruit juice", "Saturated fats", "Unsaturated fats", "Added sugars", "Added salts", "Dairy"
         ]
 
-
-
-
-
         st.write("How many serves of fruit per day?")
         st.image("fruitserve.png")
         serves_per_day_fruit = st.slider(f"How many serves of fruit per day?", min_value=0, max_value=4,  help=None, label_visibility="collapsed")
@@ -146,8 +142,6 @@ def display_page(page_num):
         serves_per_day_nonstarchyveg = st.slider(f"How many serves of Non Starchy Vegetables per day?", min_value=0, max_value=4,  help=None, label_visibility="collapsed")
         st.session_state["serves_per_day_nonstarchyveg"] = serves_per_day_nonstarchyveg
         st.write("")
-
-
 
         st.write("How many serves of Starchy Vegetables per day?")
         st.image("starchyvegserve.png")
@@ -204,14 +198,6 @@ def display_page(page_num):
         st.write("")
         # Add a button to submit selection
         if st.button("Submit"):
-            # Calculate risk factor based on servings per day
-            # result = calculate_risk_factor(serves_per_day)
-            #
-            # # Use a trained model to predict diabetes risk
-            # risk_prediction = predict_diabetes_risk(result)
-            #
-            # st.session_state["results"] = risk_prediction
-            # st.success("Selections submitted successfully")
             st.session_state["page"] = 4  # Move to results page
             st.experimental_rerun()
 
@@ -309,17 +295,8 @@ def display_page(page_num):
         svm_classifier.fit(X_train_scaled, y_train)
 
         from sklearn.metrics import accuracy_score
-
         from sklearn.metrics import confusion_matrix
-        # import pickle
-        # model_pkl_file = "app/eatwelllivewell.pkl"
-        #
-        # with open(model_pkl_file, 'wb') as file:
-        #     pickle.dump(svm_classifier, file)
-        #
-        # with open(model_pkl_file, 'rb') as file:
-        #     model = pickle.load(file)
-
+        
         model =svm_classifier
 
         serves_per_day_fruit= st.session_state["serves_per_day_fruit"]
@@ -355,11 +332,6 @@ def display_page(page_num):
         test = np.asarray([fruit,starchyveg,refgrain,whgrain,prmeat,unprmeat,egg,dairy,swbeverage,fjuice,BMI])
         test = test.reshape(1, -1)
 
-        # ##with open(model_pkl_file, 'rb') as file:
-        # import pickle
-        # model = pickle.load(open(eatwelllivewell.pkl))
-        # print(model)
-
         ## check unprocessed red meats
         inputmodel = pd.DataFrame(test, columns = ['Fruits', 'starchy vegetables', 'Refined grains', 'Whole grains',
         'Total processed meats', 'Unprocessed red meats', 'Eggs', 'Total Dairy',
@@ -368,16 +340,19 @@ def display_page(page_num):
         inputmodel.to_csv('inputmodel1.csv')
 
         y_predict = model.predict(inputmodel)
-        ##st.write(f"{name}, what do you eat each day?")
-
-
-        ##st.write(y_predict)
-
+        
         if (y_predict ==1 ):
             st.write(
                 f"Hi {name} based on the information you provided YOU ARE AT RISK for having diabetes. It is recommended that you seek medical advice")
-            st.page_link("https://www.healthdirect.gov.au/australian-health-services",
-                         label=":blue-background[To find a GP (General Practitioner) please click here]", icon="⚕️")
+            st.markdown(
+                f'<a href="https://www.healthdirect.gov.au/australian-health-services" target="_blank" style="text-decoration: none;">'
+                f'<div style="background-color: #FFFFFF; color: white; padding: 10px; border-radius: 5px; display: flex; align-items: center;">'
+                f'<div style="margin-right: 10px;">⚕️</div>'
+                f'To find a GP (General Practitioner) please click here'
+                f'</div>'
+                f'</a>',
+                unsafe_allow_html=True
+            )
         else:
             st.write(f"Hi {name} you are NOT at risk for having diabetes.")
 
@@ -467,20 +442,22 @@ def display_page(page_num):
         st.markdown('''  :yum: Discretionary Foods are foods you enjoy but are unnecessary.  
                            :bubble_tea: For example sweetened beverages and processed meats''')
 
-        st.markdown(f"Thanks {name} for using this application and I hope you found it useful.")
-        st.page_link("https://www.diabetesaustralia.com.au/risk-calculator/",
-                     label=":red-background[For more information about the risk factors of diabetes please click here]",
-                     icon="ℹ️")
+        st.markdown(f"Thanks {name} for using this application and we hope you found it useful.")
+        st.markdown(
+            f'<a href="https://www.diabetesaustralia.com.au/risk-calculator/" target="_blank" style="text-decoration: none;">'
+            f'<div style="background-color: #FFFFFF; color: white; padding: 10px; border-radius: 5px; display: flex; align-items: center;">'
+            f'<div style="margin-right: 10px;">ℹ️</div>'
+            f'<span style="font-weight: bold;">For more information about the risk factors of diabetes please click here</span>'
+            f'</div>'
+            f'</a>',
+            unsafe_allow_html=True
+        )
+        #st.link_button("https://www.diabetesaustralia.com.au/risk-calculator/",
+        #             label=":red-background[For more information about the risk factors of diabetes please click here]",
+        #             icon="ℹ️")
 
         st.markdown('<a href="mailto:Suellen.L.Fletcher@student.uts.edu.au">Feedback Welcome via Email </a>',
                     unsafe_allow_html=True)
-
-        # 'Fruits', 'starchy vegetables', 'Refined grains', 'Whole grains',
-        # 'Total processed meats', 'Unprocessed red meats', 'Eggs', 'Total Dairy',
-        # 'Sugar-sweetened beverages', 'Fruit juices', 'BMI'],
-        ##dtype = 'object'
-                              ##,serves_per_day_starchyveg,serves_per_day_refgrain,serves_per_day_whgrain,serves_per_day_prmeat,serves_per_day_unprmeat,serves_per_day_egg,serves_per_day_dairy,serves_per_day_swbeverage,serves_per_day_fjuice,BMI])
-
 
         ##st.button("Restart1")
         submit_page4 = st.button("Restart the App", on_click=click_button)
@@ -489,19 +466,6 @@ def display_page(page_num):
             ##st.session_state["name"] = name
             st.session_state["page"] = 1  # Move to page 2 after submission
             st.experimental_rerun()
-
-# def calculate_risk_factor(serves_per_day):
-#     risk_factor = 0
-#     for food, serves in serves_per_day.items():
-#         if serves:
-#             try:
-#                 serves = float(serves[:1])  # Extract numeric part from slider label
-#                 if food in ["Refined grains", "Processed meats", "Sweetened beverages", "Added sugars", "Added salts"]:
-#                     risk_factor += serves
-#             except ValueError:
-#                 st.warning(f"Invalid input for serves of {food}. Please enter a valid number.")
-#     return risk_factor
-
 
 # Set Streamlit page config
 st.set_page_config(
@@ -515,4 +479,3 @@ if "page" not in st.session_state:
 
 # Display content based on the current page
 display_page(st.session_state["page"])
-
