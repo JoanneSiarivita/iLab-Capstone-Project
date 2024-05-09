@@ -3,34 +3,27 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
+import plotly.graph_objects as go
 import base64
 
-# LOAD MODEL FROM PICKLE FILE
-def load_svm_model(file_path):
-    with open(file_path, 'rb') as file:
-        model = pickle.load(file)
-    return model
-
-model_path = 'svm_model.pkl'
-svm_model = load_svm_model(model_path)
-
 # Function to display content based on page state
-def get_base64(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
-
 def set_background(png_file):
     bin_str = get_base64(png_file)
-    page_bg_img = '''
+    page_bg_img = f'''
     <style>
-    .stApp {
-    background-image: url("data:image/png;base64,%s");
+    .stApp {{
+    background-image: url("data:image/png;base64,{bin_str}");
     background-size: cover;
-    }
+    }}
     </style>
-    ''' % bin_str
+    '''
     st.markdown(page_bg_img, unsafe_allow_html=True)
+
+#def get_base64(bin_file):
+#    with open(bin_file, 'rb') as f:
+#        data = f.read()
+#    return base64.b64encode(data).decode()
+
 
 # Set Streamlit page config
 st.set_page_config(page_title="Eat Well Live Well", page_icon=":green_salad:")
@@ -39,23 +32,9 @@ st.set_page_config(page_title="Eat Well Live Well", page_icon=":green_salad:")
 def click_button():
     st.session_state.clicked = True
 
-# DEFINE FUNCTIONS FOR PREDICTION AND CALCULATIONS
-def predict_diabetes_risk(risk_factor, model):
-    data = np.array([[risk_factor]])
-    prediction = model.predict(data)[0]
-    return prediction
-
-def calculate_risk_factor(serves_per_day):
-    risk_factor = 0
-    for food, serves in serves_per_day.items():
-        if serves:
-            try:
-                serves_numeric = float(serves.split()[0])
-                if food in ["Refined grains", "Processed meats", "Sweetened beverages", "Added sugars", "Added salts"]:
-                    risk_factor += serves_numeric
-            except ValueError:
-                st.warning(f"Invalid input for serves of {food}. Please enter a valid number.")
-    return risk_factor
+# Initialise session state
+if 'key' not in st.session_state:
+    st.session_state.key = 'value'
 
 # DEFINE PAGE 1 DISPLAY
 def display_page_1():
@@ -68,6 +47,13 @@ def display_page_1():
     name = st.text_input("Please enter your name and select gender to begin:", key=name_key)
     st.session_state["name"] = name
     gender = st.radio('Gender Preference', ['Male', 'Female', 'Non-Binary'])
+    st.write("Please enter your height and weight. This helps us to see if you have a higher risk for diabetes")
+    height_key = "height_input"
+    height = st.text_input("Height (in cm):",key=height_key)
+    st.session_state["height"] = height
+    weight_key = "weight_input"
+    weight = st.text_input("Weight (in kg):",key=weight_key)
+    st.session_state["weight"] = weight
     submit_page1 = st.button("Submit", on_click=click_button)
     if submit_page1:
         st.session_state["page"] = 2  # Move to page 2 after submission
@@ -106,13 +92,13 @@ def display_page_3():
     }
 
     # Create an empty list to store data for each food type
-    food_data_list = {}
+    food_data_list = []
 
     # Iterate through food options to collect user input
     for food_type, info in food_options.items():
         st.image(info["image"], caption=f"Serving Size {food_type}")
         serves = st.select_slider(f"How many serves of {food_type} per day?", options=["0","1","2","3","4","5 or more"], help="help")
-        num_serves = float(serves)
+        num_serves = float(serves.split()[0])
         total_serves_per_day = num_serves * info["serving_size"]
 
         # Append data tuple to the list
@@ -121,16 +107,25 @@ def display_page_3():
     # Create a DataFrame from the collected data
     food_data = pd.DataFrame(food_data_list, columns=['Food Type', 'Serving Size (g)', 'Serves per Day'])
 
-    # Add a button to calculate and submit selection
+# Add a button to calculate and submit selection
     if st.button("Submit"):
         # Calculate total servings per day across all food types
-        #total_serves_per_day = food_data['Serves per Day'].sum()
+        total_serves_per_day = sum(food_data['Serves per Day'])
 
-        # Calculate risk factor based on total servings per day
-        result = calculate_risk_factor(total_serves_per_day)
-                
+        #Calculate BMI
+        height_cm = float(st.session_state["height"])
+        weight_kg = float(st.session_state["weight"])
+        height_m = height_cm/100
+        bmi = weight_kg/(height_m **2)
+
+        # DEFINE FUNCTIONS FOR PREDICTION AND CALCULATIONS
+        def predict_diabetes_risk(risk_factor, model):
+            data = np.array([[risk_factor]])
+            prediction = model.predict(data)[0]
+            return prediction
+        
         # Use a trained model to predict diabetes risk
-        risk_prediction = predict_diabetes_risk(result)
+        risk_prediction = predict_diabetes_risk(bmi, svm_model)
         
         st.session_state["result"] = risk_prediction
         st.success("Selections submitted successfully")
@@ -143,6 +138,18 @@ def display_page_4():
     st.write(st.session_state["results"])
     if st.button("Restart"):
         st.session_state["page"] = 1  # Restart to page 1
+
+# Function to load SVM model from pickle file
+def load_svm_model(file_path):
+    with open(file_path, 'rb') as file:
+        model = pickle.load(file)
+    return model
+
+# Path to the SVM model file
+model_path = 'svm_model.pkl'
+
+# Load the SVM model
+svm_model = load_svm_model(model_path)
 
 # Initialize session state
 if "page" not in st.session_state:
@@ -158,3 +165,5 @@ elif st.session_state["page"] == 3:
     display_page_3()
 elif st.session_state["page"] == 4:
     display_page_4()
+
+
